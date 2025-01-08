@@ -8,20 +8,23 @@ import Favorites from '../../pages/favorites/favorites';
 import PrivateRoute from '../private-route/PrivateRoute';
 import { HelmetProvider } from 'react-helmet-async';
 
+import { offers } from '../../mocks/offers';
+
 
 type AppScreenProps = {
     offerCount: number;
 }
 
 
-function App({offerCount}: AppScreenProps):JSX.Element {
+function App({offerCount,}: AppScreenProps):JSX.Element {
+
   return(
     <HelmetProvider>
       <BrowserRouter>
         <Routes>
           <Route
             path={AppRoute.Main}
-            element={<Main offerCount = {offerCount} />}
+            element={<Main offerCount={offerCount} offers = {offers} />}
           />
           <Route
             path={AppRoute.Login}
@@ -31,9 +34,9 @@ function App({offerCount}: AppScreenProps):JSX.Element {
             path={AppRoute.Favorites}
             element={
               <PrivateRoute
-                autorizationStatus={AutorizationStatus.NoAuth}
+                autorizationStatus={AutorizationStatus.Auth}
               >
-                <Favorites/>
+                <Favorites offers={offers} />
               </PrivateRoute>
             }
           />
