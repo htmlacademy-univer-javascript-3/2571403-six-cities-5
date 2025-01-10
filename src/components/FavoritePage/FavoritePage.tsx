@@ -1,11 +1,11 @@
 import { OfferDescription } from '../../types/offerDescription';
 import {Link} from 'react-router-dom';
 
-interface FavouritePageProps {
+interface FavoritePageProps {
   offers: OfferDescription[];
 }
 
-function FavoritePage({ offers }: FavouritePageProps): JSX.Element {
+function FavoritePage({ offers }: FavoritePageProps): JSX.Element {
   return (
     <div className="page">
       <header className="header">

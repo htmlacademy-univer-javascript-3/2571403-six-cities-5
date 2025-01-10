@@ -1,16 +1,19 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppRoute, AuthorizationStatus } from '../mocks/login.ts';
 import { CITY } from '../mocks/city.ts';
-import { review } from '../types/review.ts';
-import { useAppSelector } from '../hooks/index.ts';
 
+import { review } from '../types/review.ts';
+
+import { useAppSelector } from '../hooks/index.tsx';
 
 import MainPage from './MainPage/MainPage.tsx';
+
 import NotFoundPage from './NotFoundPage/NotFoundPage.tsx';
 import OfferPage from './OfferPage/OfferPage.tsx';
+import FavoritePage from './FavoritePage/FavoritePage.tsx';
 import LoginPage from './LoginPage/LoginPage.tsx';
 import PrivateRoute from './PrivateRoute/PrivateRoute.tsx';
-import FavoritePage from './FavoritePage/FavoritePage.tsx';
+import { offer } from '../mocks/offers.ts';
 
 
 function App({ guestReview } : { guestReview: review[]}): JSX.Element {
@@ -33,7 +36,9 @@ function App({ guestReview } : { guestReview: review[]}): JSX.Element {
             <PrivateRoute
               authorizationStatus={AuthorizationStatus.Auth}
             >
-              <FavoritePage offers={[]} />
+              <FavoritePage
+                offers = {offer}
+              />
             </PrivateRoute>
           }
         />
