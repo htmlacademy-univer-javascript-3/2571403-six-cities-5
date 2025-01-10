@@ -1,54 +1,67 @@
-import { useState } from 'react';
-import {Link} from 'react-router-dom';
+import { useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useAppSelector } from '../../hooks/index.ts';
+import { getAuthorizationStatus, getComments, getOffersNearby, getUserEmail } from '../../store/selectors.ts';
+import { fetchComments, fetchOffer, fetchOfferNeibourhood, postComment } from '../../store/apiActions.ts';
+import { store } from '../../store/index.ts';
+import { AppRoute, AuthorizationStatus } from '../../mocks/login.ts';
+import { CITIES } from '../../mocks/city.ts';
 import { OfferDescription, OfferIdDescription } from '../../types/offerDescription.ts';
-import { review } from '../../types/review.ts';
-import ReviewForm from '../ReviewForm/ReviewForm.tsx';
+import { CommentList, CommentPost } from '../../types/comment.ts';
 import ReviewList from '../ReviewList/ReviewList.tsx';
+import ReviewForm from '../ReviewForm/ReviewForm.tsx';
 import OfferList from '../OfferList/OfferList.tsx';
 import Map from '../Map/Map.tsx';
-import { CITY } from '../../mocks/city.ts';
+import UserHeaderInfo from '../UserHeaderInfo/UserHeaderInfo.tsx';
+import { emptyOffer } from '../../mocks/offer.ts';
+import NotFoundPage from '../NotFoundPage/NotFoundPage.tsx';
 
-function OfferPage({ offer, offerList, guestReview, city}: {offer:OfferIdDescription ; offerList:OfferDescription[]; guestReview:review[];city:string}):JSX.Element{
-  const [selectedPoint, setSelectedPoint] = useState<OfferDescription | undefined>(undefined);
-  const handleListItemHover = (listItemId: string) => {
-    const currentPoint = offerList.find((o) => o.id.toString() === listItemId);
-    setSelectedPoint(currentPoint);
+function OfferPage({ offer, offerList, city, onFavouriteClick}: {offer:OfferIdDescription ; offerList:OfferDescription[]; city:string; onFavouriteClick: (id : string, status : number, isOfferPage : boolean)=> void}):JSX.Element{
+  const authStatus = useAppSelector(getAuthorizationStatus);
+  const authStatusMemo = useMemo(() => authStatus,[authStatus]);
+
+  const userEmail = useAppSelector(getUserEmail);
+  const userEmailMemo = useMemo(() => userEmail,[userEmail]);
+
+  const nearOffers = useAppSelector(getOffersNearby);
+  const nearbyOffers = useMemo(() => nearOffers, [nearOffers]);
+
+  const commentList:CommentList = useAppSelector(getComments);
+  const comments = useMemo(()=> commentList,[commentList]);
+  const { id } = useParams<{ id: string }>();
+  const isIdExist = offerList.filter((o) => o.id === id).length > 0;
+  if (isIdExist && offer === emptyOffer && id){
+    store.dispatch(fetchOffer(id));
+    store.dispatch(fetchComments(id));
+    store.dispatch(fetchOfferNeibourhood(id));
+  }
+
+  const handleFavouriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    onFavouriteClick(
+      offer.id,
+      offer.isFavorite ? 0 : 1,
+      true
+    );
   };
-  return (
+
+  const onFormSubmit = (commentPayload : CommentPost) => {
+    store.dispatch(
+      postComment({
+        rating: commentPayload.rating,
+        comment: commentPayload.comment,
+        id: commentPayload.id,
+      })
+    ).unwrap();
+  };
+
+  return isIdExist ? (
+
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <a className="header__logo-link" href="main.html">
-                <Link to = "/">
-                  <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41"/>
-                </Link>
-              </a>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
-                    <div className="header__avatar-wrapper user__avatar-wrapper">
-                    </div>
-                    <span className="header__user-name user__name">Oliver.conner@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <UserHeaderInfo authStatus={authStatusMemo} userEmail={userEmailMemo}/>
       <main className="page__main page__main--offer">
-        <section className="offer">
-          <div className="offer__gallery-container container">
+        <section className="offer" data-testid = "offer-info">
+          <div className="offer__gallery-container container" data-testid = "offer-gallery">
             <div className="offer__gallery">
               {offer.images.map((image) => (
                 <div key={image} className="offer__image-wrapper">
@@ -68,12 +81,21 @@ function OfferPage({ offer, offerList, guestReview, city}: {offer:OfferIdDescrip
                 <h1 className="offer__name">
                   {offer.title}
                 </h1>
-                <button className={offer.isFavorite ? 'offer__bookmark-button offer__bookmark-button--active button' : 'offer__bookmark-button button'} type="button">
-                  <svg className="offer__bookmark-icon" width="31" height="33">
-                    <use xlinkHref="#icon-bookmark"></use>
-                  </svg>
-                  <span className="visually-hidden">{offer.isFavorite ? 'In bookmark' : 'To bookmark'}</span>
-                </button>
+                {authStatus === AuthorizationStatus.Auth ?
+                  <button className={offer.isFavorite ? 'offer__bookmark-button offer__bookmark-button--active button' : 'offer__bookmark-button button'} type="button" onClick={handleFavouriteClick} data-testid = 'favourite-button'>
+                    <svg className="offer__bookmark-icon" width="31" height="33">
+                      <use xlinkHref="#icon-bookmark"></use>
+                    </svg>
+                    <span className="visually-hidden">{offer.isFavorite ? 'In bookmark' : 'To bookmark'}</span>
+                  </button> :
+                  <button className={'offer__bookmark-button button'} type="button">
+                    <Link to = {AppRoute.Login}>
+                      <svg className="offer__bookmark-icon" width="31" height="33">
+                        <use xlinkHref="#icon-bookmark"></use>
+                      </svg>
+                    </Link>
+                    <span className="visually-hidden">To bookmarks</span>
+                  </button>}
               </div>
               <div className="offer__rating rating">
                 <div className="offer__stars rating__stars">
@@ -92,8 +114,6 @@ function OfferPage({ offer, offerList, guestReview, city}: {offer:OfferIdDescrip
                 <li className="offer__feature offer__feature--entire">
                   Max {offer.maxAdults} Adults
                 </li>
-                )
-
               </ul>
               <div className="offer__price">
                 <b className="offer__price-value">&euro;{offer.price}</b>
@@ -109,7 +129,7 @@ function OfferPage({ offer, offerList, guestReview, city}: {offer:OfferIdDescrip
                   ))}
                 </ul>
               </div>
-              <div className="offer__host">
+              <div className="offer__host" data-testid = "host-info">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
                   <div className="offer__avatar-wrapper offer__avatar-wrapper--pro user__avatar-wrapper">
@@ -126,37 +146,31 @@ function OfferPage({ offer, offerList, guestReview, city}: {offer:OfferIdDescrip
                   <p className="offer__text">
                     {offer.description}
                   </p>
-
                 </div>
               </div>
-              <section className="offer__reviews reviews">
-                <ReviewList guestReview = {guestReview}/>
-                <ReviewForm
-                  onAnswer={() => {
-                    throw new Error('Function \'onAnswer\' isn\'t implemented.');
-                  }}
-                />
+              <section className="offer__reviews reviews" data-testid = "reviews">
+                <ReviewList guestReviews = {[...comments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}/>
+                {authStatus === AuthorizationStatus.Auth ? <ReviewForm onFormSubmit={onFormSubmit}/> : null}
               </section>
             </div>
           </div>
-          <section className="offer__map map">
+          <section className="offer__map map" data-testid = "map">
             <Map
-              city={CITY.filter((c) => c.title === city)[0]}
-              selectedOffer={offerList.filter((i) => i.id === selectedPoint?.id)[0] }
+              city={CITIES.filter((c) => c.title === city)[0]}
+              selectedOffer={offerList.filter((i) => i.id === offer?.id)[0] }
               height={579}
               width={1144}
-              offerList={offerList}
+              offerList={nearOffers.slice(0,3).concat(offerList.filter((i) => i.id === offer.id))}
             />
           </section>
         </section>
         <div className="container">
-          <section className="near-places places">
+          <section className="near-places places" data-testid = "nearby-places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
-            <OfferList offer={offerList.filter((o) => o.id === offer.id)} onListItemHover={handleListItemHover} isMainPage = {false} city={city}/>
+            <OfferList offer={nearbyOffers.slice(0,3)} onListItemHover={()=>{}} isMainPage = {false} city={city}/>
           </section>
         </div>
       </main>
-    </div>
-  );
+    </div>) : (<NotFoundPage userEmail={userEmail} authStatus={authStatus}/>);
 }
-export default OfferPage;
+export default (OfferPage);
