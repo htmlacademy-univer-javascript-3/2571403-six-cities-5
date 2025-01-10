@@ -1,30 +1,34 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AppRoute, AuthorizationStatus } from '../mocks/login.ts';
-import { CITY } from '../mocks/city.ts';
 
-import { review } from '../types/review.ts';
-
-import { useAppSelector } from '../hooks/index.tsx';
-
-import MainPage from './MainPage/MainPage.tsx';
-
-import NotFoundPage from './NotFoundPage/NotFoundPage.tsx';
-import OfferPage from './OfferPage/OfferPage.tsx';
-import FavoritePage from './FavoritePage/FavoritePage.tsx';
-import LoginPage from './LoginPage/LoginPage.tsx';
-import PrivateRoute from './PrivateRoute/PrivateRoute.tsx';
-import { offer } from '../mocks/offers.ts';
-
+import { Route, BrowserRouter, Routes } from 'react-router-dom';
+import { AppRoute, AuthorizationStatus } from '../mocks/login';
+import MainPage from './MainPage/MainPage';
+import NotFoundPage from './NotFoundPage/NotFoundPage';
+import OfferPage from './OfferPage/OfferPage';
+import FavouritePage from './FavoritePage/FavoritePage';
+import LoginPage from './LoginPage/LoginPage';
+import PrivateRoute from './PrivateRoute/PrivateRoute';
+import { review } from '../types/review';
+import { useAppSelector } from '../hooks/index.ts';
+import LoadingScreen from '../components/LoadingPage/LoadingPage.tsx';
 
 function App({ guestReview } : { guestReview: review[]}): JSX.Element {
   const city = useAppSelector((state) => state.city);
   const offerlist = useAppSelector((state) => state.offerlist);
+  const isDataLoading = useAppSelector((state) => state.isDataLoading);
+  const offer = useAppSelector((state) => state.offer);
+
+  if (isDataLoading) {
+    return (
+      <LoadingScreen offerList={[]} />
+    );
+  }
+
   return(
     <BrowserRouter>
       <Routes>
         <Route
           path = {AppRoute.Main}
-          element = {<MainPage MapProps={offerlist}/>}
+          element = {<MainPage offerList={offerlist}/>}
         />
         <Route
           path = {AppRoute.Login}
@@ -36,15 +40,15 @@ function App({ guestReview } : { guestReview: review[]}): JSX.Element {
             <PrivateRoute
               authorizationStatus={AuthorizationStatus.Auth}
             >
-              <FavoritePage
-                offers = {offer}
+              <FavouritePage
+                offers = {offerlist}
               />
             </PrivateRoute>
           }
         />
         <Route
           path = {AppRoute.Offer}
-          element = {<OfferPage offer={offerlist} guestReview={guestReview} city={CITY.filter((o) => o.title === city)[0]}/>}
+          element = {<OfferPage offer = {offer} offerList={offerlist} guestReview={guestReview} city={city}/>}
         />
         <Route
           path = '*'
