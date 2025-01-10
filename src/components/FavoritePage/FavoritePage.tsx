@@ -1,3 +1,4 @@
+
 import { OfferDescription } from '../../types/offerDescription';
 import {Link} from 'react-router-dom';
 
@@ -38,7 +39,6 @@ function FavoritePage({ offers }: FavoritePageProps): JSX.Element {
           </div>
         </div>
       </header>
-
       <main className="page__main page__main--favorites">
         <div className="page__favorites-container container">
           <section className="favorites">
@@ -62,7 +62,7 @@ function FavoritePage({ offers }: FavoritePageProps): JSX.Element {
                           </div>) : null}
                         <div className="favorites__image-wrapper place-card__image-wrapper">
                           <a href="#">
-                            <img className="place-card__image" src={offer.images[0]} width="150" height="110" alt="Place image"/>
+                            <img className="place-card__image" src={offer.previewImage} width="150" height="110" alt="Place image"/>
                           </a>
                         </div>
                         <div className="favorites__card-info place-card__info">
@@ -80,21 +80,20 @@ function FavoritePage({ offers }: FavoritePageProps): JSX.Element {
                           </div>
                           <div className="place-card__rating rating">
                             <div className="place-card__stars rating__stars">
-                              <span style={{width: offer.raitingStars}}></span>
+                              <span style={{width: `${(offer.rating / 5) * 100}%`}}></span>
                               <span className="visually-hidden">Rating</span>
                             </div>
                           </div>
                           <h2 className="place-card__name">
-                            <a href="#">{offer.offerName}</a>
+                            <a href="#">{offer.title}</a>
                           </h2>
-                          <p className="place-card__type">{offer.features[0]}</p>
+                          <p className="place-card__type">{offer.type}</p>
                         </div>
                       </article>
                     </div>
                   ))}
                 </div>
               </li>
-
               <li className="favorites__locations-items">
                 <div className="favorites__locations locations locations--current">
                   <div className="locations__item">
@@ -116,8 +115,6 @@ function FavoritePage({ offers }: FavoritePageProps): JSX.Element {
         </a>
       </footer>
     </div>
-
   );
 }
-
 export default FavoritePage;
