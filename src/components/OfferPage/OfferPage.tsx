@@ -17,14 +17,16 @@ import { emptyOffer } from '../../mocks/offer.ts';
 import NotFoundPage from '../NotFoundPage/NotFoundPage.tsx';
 
 function OfferPage({ offer, offerList, city, onFavouriteClick}: {offer:OfferIdDescription ; offerList:OfferDescription[]; city:string; onFavouriteClick: (id : string, status : number, isOfferPage : boolean)=> void}):JSX.Element{
-  const authStatus = useAppSelector(getAuthorizationStatus);
-  const authStatusMemo = useMemo(() => authStatus,[authStatus]);
+
+
+  const nearOffers = useAppSelector(getOffersNearby);
+  const nearbyOffers = useMemo(() => nearOffers, [nearOffers]);
 
   const userEmail = useAppSelector(getUserEmail);
   const userEmailMemo = useMemo(() => userEmail,[userEmail]);
 
-  const nearOffers = useAppSelector(getOffersNearby);
-  const nearbyOffers = useMemo(() => nearOffers, [nearOffers]);
+  const authStatus = useAppSelector(getAuthorizationStatus);
+  const authStatusMemo = useMemo(() => authStatus,[authStatus]);
 
   const commentList:CommentList = useAppSelector(getComments);
   const comments = useMemo(()=> commentList,[commentList]);
