@@ -5,7 +5,7 @@ interface FavouritePageProps {
   offers: OfferDescription[];
 }
 
-function FavouritePage({ offers }: FavouritePageProps): JSX.Element {
+function FavoritePage({ offers }: FavouritePageProps): JSX.Element {
   return (
     <div className="page">
       <header className="header">
@@ -120,4 +120,4 @@ function FavouritePage({ offers }: FavouritePageProps): JSX.Element {
   );
 }
 
-export default FavouritePage;
+export default FavoritePage;

@@ -21,5 +21,3 @@ export type CityOfferDescription = {
   offer:OfferDescription[];
   city:string;
 }
-
-

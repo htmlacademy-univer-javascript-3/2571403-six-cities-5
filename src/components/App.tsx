@@ -8,9 +8,10 @@ import { useAppSelector } from '../hooks/index.ts';
 import MainPage from './MainPage/MainPage.tsx';
 import NotFoundPage from './NotFoundPage/NotFoundPage.tsx';
 import OfferPage from './OfferPage/OfferPage.tsx';
-import FavouritePage from './FavoritePage/FavoritePage.tsx';
 import LoginPage from './LoginPage/LoginPage.tsx';
 import PrivateRoute from './PrivateRoute/PrivateRoute.tsx';
+import FavoritePage from './FavoritePage/FavoritePage.tsx';
+
 
 function App({ guestReview } : { guestReview: review[]}): JSX.Element {
   const city = useAppSelector((state) => state.city);
@@ -32,9 +33,7 @@ function App({ guestReview } : { guestReview: review[]}): JSX.Element {
             <PrivateRoute
               authorizationStatus={AuthorizationStatus.Auth}
             >
-              <FavouritePage
-                offers = {offerlist}
-              />
+              <FavoritePage offers={[]} />
             </PrivateRoute>
           }
         />
