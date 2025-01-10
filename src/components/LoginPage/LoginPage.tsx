@@ -12,7 +12,6 @@ function LoginPage():JSX.Element{
           </div>
         </div>
       </header>
-
       <main className="page__main page__main--login">
         <div className="page__login-container container">
           <section className="login">
@@ -41,5 +40,4 @@ function LoginPage():JSX.Element{
     </div>
   );
 }
-
 export default LoginPage;

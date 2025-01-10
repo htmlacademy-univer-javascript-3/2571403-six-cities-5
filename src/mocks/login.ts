@@ -1,11 +1,11 @@
 export enum AppRoute {
+    Main = '/',
+    Offer = '/offer/:id',
     Login = '/login',
-    Main = '/main',
-    Favorites = '/favorites',
-    Offer = '/offer/:id'
-}
+    Favourites = '/favourites'
+  }
 
-export enum AutorizationStatus {
+export enum AuthorizationStatus {
     Auth = 'AUTH',
     NoAuth = 'NO_AUTH',
     Unknown = 'UNKNOWN',
